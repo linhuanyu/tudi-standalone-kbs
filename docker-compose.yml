@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  db:
+    container_name: db
+    image: linhuanyu/tudi-standalone-kbs-db:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - tudidbvolume:/var/lib/mysql
+
+  redis:
+    container_name: redis
+    image: redis:6.2-alpine
+    restart: always
+    volumes:
+      - tudicache:/data
+
+  kbs:
+    container_name: kbs
+    image: linhuanyu/tudi-back-kbs:latest
+    restart: always
+    environment:
+      - DATABASE_URL=jdbc:mysql://db:3306/tudi_cn_module
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=tudi5432
+      - REDIS_URL=redis
+    depends_on:
+      - db
+      - redis
+
+  cnmodule:
+    container_name: cnmodule
+    image: linhuanyu/tudi-back-cnmodule:latest
+    restart: always
+    environment:
+      - DATABASE_URL=jdbc:mysql://db:3306/tudi_cn_module
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=tudi5432
+      - REDIS_URL=redis
+      - KBS_URL=http://kbs:8080/
+    depends_on:
+      - db
+      - redis
+      - kbs
+
+  widget:
+    container_name: widget
+    build: ./widget
+    restart: always
+    ports: 
+      - "80:80"
+    depends_on:
+      - cnmodule
+
+volumes:
+  tudidbvolume:
+  tudicache:
+
