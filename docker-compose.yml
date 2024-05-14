@@ -26,6 +26,10 @@ services:
       - DATABASE_USER=root
       - DATABASE_PASSWORD=tudi5432
       - REDIS_URL=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - BATCH_REVIEW_ENABLE=true
+      - IMPORT_DIR=
     depends_on:
       - db
       - redis
